@@ -11,8 +11,8 @@ import {
     createAppContainer, 
     createBottomTabNavigator
 } from 'react-navigation';
-//import LoginScreen from '../screens/LoginScreen';
-import RCTWebRTCDemo from '../screens/MainScreen';
+import LoginScreen from '../screens/LoginScreen';
+import RCTWebRTCDemo from '../screens/WebRTCScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 //import CallScreen from '../screens/CallScreen';
 //import IncomingCallScreen from '../screens/IncomingCallScreen';
@@ -63,17 +63,21 @@ const BtmTabStack = createBottomTabNavigator(
             },
         },
         */
+        Login: {
+            screen: LoginScreen,
+            path: 'login',
+        },
         People: {
-            screen: RCTWebRTCDemo,
+            screen: PeopleScreen,
             path: 'people',
         },
         Chat: {
             screen: ChatScreen,
             path: 'chat',
         },
-        Settings: {
-            screen: ProfileScreen,
-            path: 'Profile',
+        Video: {
+            screen: RCTWebRTCDemo,
+            path: 'webrtc',
         },
     },
     {
