@@ -1,5 +1,5 @@
 'use strict';
-
+window.navigator.userAgent = "react-native";
 import React, { Component } from 'react';
 import {
   AppRegistry,
@@ -14,8 +14,6 @@ import {
 
 import io from 'socket.io-client';
 
-const socket = io.connect('https://react-native-webrtc.herokuapp.com', {transports: ['websocket']});
-
 import {
   RTCPeerConnection,
   RTCMediaStream,
@@ -26,7 +24,12 @@ import {
   getUserMedia,
 } from 'react-native-webrtc';
 
-const configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
+let socket=io.connect('http://salt.intviu.cn:4443');
+const configuration = {"iceServers": [{
+  "url":"turn:tolive077.intviu.cn:3478",
+  "username":"intviu",
+  "credential":"intviu"}]
+};
 
 const pcPeers = {};
 let localStream;
@@ -202,19 +205,21 @@ function leave(socketId) {
 }
 
 socket.on('exchange', function(data){
+  console.log("exchange");
   exchange(data);
 });
 socket.on('leave', function(socketId){
+  console.log("leave");
   leave(socketId);
 });
 
 socket.on('connect', function(data) {
   console.log('connect');
-  getLocalStream(true, function(stream) {
+/*  getLocalStream(true, function(stream) {
     localStream = stream;
     container.setState({selfViewSrc: stream.toURL()});
     container.setState({status: 'ready', info: 'Please enter or create room ID'});
-  });
+  });*/
 });
 
 function logError(error) {
@@ -244,25 +249,13 @@ function getStats() {
 let container;
 
 export default class RCTWebRTCDemo extends React.Component{
-  
-  state = {
-    info: 'Initializing',
-    status: 'init',
-    roomID: '',
-    isFront: true,
-    selfViewSrc: null,
-    remoteList: {},
-    textRoomConnected: false,
-    textRoomData: [],
-    textRoomValue: '',
-  };
-
-  getInitialState() {
-    console.log(`${this.state.isFront} the state.isFront`);
+  constructor(props){
+    super(props);
+    //socket = io.connect('http://salt.intviu.cn:4443');
     this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => true});
-    return {
+    this.state = {
       info: 'Initializing',
-      status: 'init',
+      status: 'ready',
       roomID: '',
       isFront: true,
       selfViewSrc: null,
@@ -271,9 +264,11 @@ export default class RCTWebRTCDemo extends React.Component{
       textRoomData: [],
       textRoomValue: '',
     };
-  };
+  }
+
   componentDidMount() {
     container = this;
+    //this.socket = io.connect('http://salt.intviu.cn:4443');
   };
   _press(event) {
     this.refs.roomID.blur();
@@ -282,8 +277,9 @@ export default class RCTWebRTCDemo extends React.Component{
   };
   _switchVideoType() {
     console.log(`${this.state.isFront} the state.isFront`);
+    console.log(`${this.state.status} the status is`)
     const isFront = !this.state.isFront;
-    this.setState({isFront});
+    this.setState({isFront: isFront});
     getLocalStream(isFront, function(stream) {
       if (localStream) {
         for (const id in pcPeers) {
@@ -318,6 +314,7 @@ export default class RCTWebRTCDemo extends React.Component{
     }
     this.setState({textRoomData, textRoomValue: ''});
   };
+
   _renderTextRoom() {
     return (
       <View style={styles.listViewContainer}>
