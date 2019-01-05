@@ -1,158 +1,134 @@
 import React from "react";
-import { GiftedChat, utils } from "react-native-gifted-chat";
-
-import Chatkit from "@pusher/chatkit-client";
-
-const CHATKIT_INSTANCE_LOCATOR = "d6b422d1-6fd4-4271-8953-4bd711965dbd";
-const CHATKIT_TOKEN_PROVIDER_ENDPOINT =
-`https://us1.pusherplatform.io/services/chatkit_token_provider/v1/${CHATKIT_INSTANCE_LOCATOR}/token`;
-const CHATKIT_ROOM_ID = "19375885";
-const CHATKIT_USER_NAME = "zhiyuan";
+import {
+    Text,
+    View,
+    TextInput,
+    Platform,
+    Modal,
+    TouchableHighlight,
+    TouchableOpacity,
+    SafeAreaView,
+    StatusBar,
+    AsyncStorage,
+    StyleSheet,
+    FlatList
+} from 'react-native';
 
 export default class ChatScreen extends React.Component {
-  state = {
-    messages: []
-  };
-  constructor(props){
-    super(props);
-    this.currentUser = null;
-    this.roomId = "111";
-    this._chatWithUser = this.props.navigation.getParam('chatWithUser');
-    this.currentUser = this.props.navigation.getParam('currentUserObj');
-  }
 
-  componentDidMount() {
-    /*
-    const tokenProvider = new Chatkit.TokenProvider({
-      url: CHATKIT_TOKEN_PROVIDER_ENDPOINT
-    });
+    constructor(props){
+        super(props);
+        this.usersdemo = [
+            {name: 'aaa', id: 'aaa', is_online: true},
+            {name: 'bbb', id: 'bbb', is_online: true},
+            {name: 'ccc', id: 'ccc', is_online: false},
+            {name: 'ddd', id: 'ddd', is_online: false},
+            {name: 'eee', id: 'eee', is_online: false},
+            {name: 'fff', id: 'fff', is_online: true},
+        ];
+        this.state = {
+            messages: []
+        };
+    }
 
-    const chatManager = new Chatkit.ChatManager({
-      instanceLocator: `v1:us1:${CHATKIT_INSTANCE_LOCATOR}`,
-      userId: CHATKIT_USER_NAME,
-      tokenProvider: tokenProvider
-    });
+    componentDidMount() {
+    }
 
-    chatManager.connect().then(currentUser => {
-      this.currentUser = currentUser;
-      this.currentUser.subscribeToRoom({
-        roomId: CHATKIT_ROOM_ID,
-        hooks: {
-          onMessage: this.onReceive.bind(this)
-        }
-      });
-    });
-   */
+    _beginChat = (item) => {
+        console.log("ChatScreen.js _beginChat ", item);
+        this.props.navigation.navigate('SingleChat')
+    }
 
-    this.beginChat();
-  }
+    _renderItem = ({ item }) => {
+        console.log("aaaaaaa");
+        let online_style = item.is_online ? 'online' : 'offline';
 
-
-  beginChat = () => {
-    console.log("run the beginChat function")
-    let roomName = [this._chatWithUser.id, this.currentUser.id];
-    roomName = roomName.sort().join("_") + "_room";
-
-    this.currentUser
-      .getJoinableRooms()
-      .then(rooms => {
-        var chat_room = rooms.find(room => {
-          return room.name == roomName;
-        });
-
-        if (!chat_room) {
-          this.currentUser
-            .createRoom({
-              name: roomName,
-              private: false // so they could find it in joinable rooms
-            })
-            .then(room => {
-              this.substheRoom(room.id, this._chatWithUser.id);
-            })
-            .catch(err => {
-              console.log(`error creating room ${err}`);
-            });
-        } else {
-          this.substheRoom(chat_room.id, this._chatWithUser.id);
-        }
-      })
-      .catch(err => {
-        console.log(`error getting joinable rooms: ${err}`);
-      });
-  };
-
-  /*sortUsers = () => {
-    this.onlineUsers = this.props.navigation.getParam('onlineUsers');
-    return this.onlineUsers.slice().sort((x, y) => {
-      return y.is_online - x.is_online;
-    });
-  };  */
-
-  substheRoom = (roomId, chatWith) => {
-    console.log("run the substheRoom function")
-    this.roomId = roomId;
-    this.chatWithUser = chatWith;
-    console.log("get the roomid is ", this.roomId);
-
-    this.currentUser
-      .subscribeToRoom({
-        roomId: roomId,
-        hooks: {
-          //onNewMessage: this.onReceiveMessage,
-          onMessage: this.onReceive.bind(this),
-          //onUserStartedTyping: this.onUserTypes,
-          //onUserStoppedTyping: this.onUserNotTypes
-        },
-        messageLimit: 5
-      })
-      .then(room => {
-        this.setState({
-          inChatRoom: true
-        });
-        console.log(`successfully subscribed to room`);
-      })
-      .catch(err => {
-        console.log(`error subscribing to room: ${err}`);
-      });
-  };
-
-
-  onReceive(data) {
-    console.log("run the onReceive");
-    const { id, senderId, text, createdAt } = data;
-    const incomingMessage = {
-      _id: id,
-      text: text,
-      createdAt: new Date(createdAt),
-      user: {
-        _id: senderId,
-        name: senderId,
-        avatar:
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmXGGuS_PrRhQt73sGzdZvnkQrPXvtA-9cjcPxJLhLo8rW-sVA"
-      }
+        return (
+            <TouchableHighlight
+                onPress={() => {
+                    console.log('now beginning chat...');
+                    this._beginChat(item);
+                }}
+                underlayColor="#f3f3f3"
+                style={styles.list_item}>
+                <View style={styles.list_item_body}>
+                    <View style={[styles.online_indicator, styles[online_style]]} />
+                    <Text style={styles.username}>{item.name}</Text>
+                </View>
+            </TouchableHighlight>
+        );
     };
 
-    this.setState(previousState => ({
-      messages: GiftedChat.append(previousState.messages, incomingMessage)
-    }));
-  }
-
-  onSend([message]) {
-    this.currentUser.sendMessage({
-      text: message.text,
-      roomId: this.roomId
-    });
-  }
-
-  render() {
-    return (
-      <GiftedChat
-        messages={this.state.messages}
-        onSend={messages => this.onSend(messages)}
-        user={{
-          _id: this.currentUser.id
-        }}
-      />
-    );
-  }
+    render() {
+        return (
+            <View style={styles.container}>
+                <View style={styles.body}>
+                    <FlatList
+                        data={this.usersdemo}
+                        renderItem={this._renderItem}
+                        //extraData={this.state}
+                        keyExtractor={(item) => {
+                            return item.id.toString();
+                        }}
+                    />
+                </View>
+            </View>
+        );
+    }
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 10,
+        alignSelf: 'stretch',
+    },
+    leave_button: {
+        marginRight: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#FFF',
+    },
+    leave_button_text: {
+        color: '#FFF',
+        fontSize: 16,
+    },
+    activity: {
+        flex: 1,
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    activity_text: {
+        fontSize: 14,
+        color: '#484848',
+    },
+    body: {
+        flex: 9,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    list_item: {
+        padding: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+    },
+    list_item_body: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    online_indicator: {
+        width: 10,
+        height: 10,
+        borderRadius: 10,
+    },
+    online: {
+        backgroundColor: '#3ec70f',
+    },
+    offline: {
+        backgroundColor: '#ccc',
+    },
+    username: {
+        marginLeft: 10,
+        fontSize: 16,
+    },
+  });
+  

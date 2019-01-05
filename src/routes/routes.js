@@ -14,10 +14,15 @@ import {
 import LoginScreen from '../screens/LoginScreen';
 import RCTWebRTCDemo from '../screens/WebRTCScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import DiscScreen from '../screens/DiscScreen';
+import SingleChatScreen  from '../screens/SingleChatScreen';
+import PersonDetailScreen from '../screens/PersonDetailScreen';
 //import CallScreen from '../screens/CallScreen';
 //import IncomingCallScreen from '../screens/IncomingCallScreen';
 import PeopleScreen from '../screens/PeopleScreen';
 import ChatScreen from '../screens/ChatScreen';
+import WebrtcVideoScreen from '../screens/WebrtcVideoScreen';
+import WebrtcAudioScreen from '../screens/WebrtcAudioScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 
 import COLOR from '../styles/Color';
@@ -45,9 +50,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
         }
     }
 );
-*/
-const BtmTabStack = createBottomTabNavigator(
-    {
 /*        Home: {
             screen: AppStack,
             path: 'video',
@@ -63,22 +65,26 @@ const BtmTabStack = createBottomTabNavigator(
             },
         },
         */
-        Login: {
-            screen: LoginScreen,
-            path: 'login',
+
+const BtmTabStack = createBottomTabNavigator(
+    {
+        Chat: {
+            screen: ChatScreen,
+            path: 'chat'
         },
+
         People: {
             screen: PeopleScreen,
             path: 'people',
         },
-        Chat: {
-            screen: ChatScreen,
-            path: 'chat',
-        },
-        Video: {
-            screen: RCTWebRTCDemo,
+        Discovery: {
+            screen: DiscScreen,
             path: 'webrtc',
         },
+        Setting: {
+            screen: SettingsScreen,
+            path: 'setting',
+        }
     },
     {
         tabBarOptions: {
@@ -87,15 +93,31 @@ const BtmTabStack = createBottomTabNavigator(
     }
 );
 
+const MainStacks = createStackNavigator({
+    Root: {
+        screen: BtmTabStack,
+    },
+    SingleChat: {
+        screen: SingleChatScreen,
+    },
+    PersonDetail: {
+        screen: PersonDetailScreen,
+    },
+    WebrtcVideo: {
+        screen: WebrtcVideoScreen,
+    },
+    WebrtcAudio: {
+        screen: WebrtcAudioScreen,
+    },
+});
+
 const RootStack = createSwitchNavigator(
     {
-        //Login: LoginScreen,
-        App: BtmTabStack,
-        //Call: CallScreen,
-        //IncomingCall: IncomingCallScreen
+        Login: LoginScreen,
+        Main: MainStacks,
     },
     {
-        initialRouteName: 'App',
+        initialRouteName: 'Login',
     }
 );
 

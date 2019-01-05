@@ -73,8 +73,9 @@ export default class LoginScreen extends React.Component {
     };
     
     enterChat = () => {
+        this.props.navigation.navigate('Main')
         //console.log("start create user finish. send a request to nodeserver");
-        fetch(chatServer, {
+    /*    fetch(chatServer, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -157,10 +158,7 @@ export default class LoginScreen extends React.Component {
                         //    await AsyncStorage.setItem('onlineUsers', this.state.users);
                         //})();
                         //this.props.navigation.setParams({testaa: "aaaaaa"});
-                        this.props.navigation.navigate('People', {
-                            paraUsers: this.state.users,
-                            currentUserObj: this.currentUser
-                        })
+                        this.props.navigation.navigate('Main')
                     })
                     .catch(err => {
                         console.log(`Error joining room ${err}`);
@@ -173,7 +171,7 @@ export default class LoginScreen extends React.Component {
             .catch(error => {
                 console.log("error in request: ", error);
             });
-    };
+        */  };
 
     render() {
         return (
